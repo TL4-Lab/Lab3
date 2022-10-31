@@ -2,32 +2,34 @@ clear;
 close all;
 clc;
 
-N = 16;
-
-
-
 for i = 0:5
     N = 16*2^i;
     x_n = step(0, N)-step(15,N);
     k = 0:length(x_n)-1;
     DFT_x = DFT(x_n,k,N);
     DFT_x = DFT_x';
+
+    %DFT
     figure();
     subplot(3,1,1);
-    plot(k,abs(DFT_x));
+    plot(abs(DFT_x));
     ylabel("|DFT(x)|");
     xlabel("Frequency(HZ)");
     title(["DFT," "zero padding: " num2str(N)]);
+
+    %DTFT
     w = 2*pi*k/N;
     DTFT_x  = DTFT(x_n,w,N);
     DTFT_x = DTFT_x';
     subplot(3,1,2);
-    plot(k,abs(DTFT_x));
+    plot(abs(DTFT_x));
     ylabel("|DTFT(x)|");
     xlabel("Frequency(HZ)");
     title(["DTFT" "zero padding: " num2str(N)]);
+    
+    %FFT
     subplot(3,1,3);
-    plot(k,abs(fft(x_n)));
+    plot(abs(fft(x_n)));
     ylabel("|FFT(x)|");
     xlabel("Frequency(HZ)");
     title(["FFT" "zero padding: " num2str(N)]);
