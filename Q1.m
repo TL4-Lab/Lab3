@@ -9,7 +9,7 @@ whos Xdouble
 
 impulseSampled = Xdouble;
 
-% imshow(Xdouble);
+imshow(Xdouble);
 % colormap(1-gray);
 colormap(gray);
 
@@ -17,7 +17,7 @@ iter = 1;
 %impulse sample
 for i = 1:776
     for j=1:1395
-        if (mod(iter,5) ~= 0)
+        if (mod(i,5) ~= 0 || mod(j,5) ~= 0)
             impulseSampled(i,j) = 0;
         end
         iter = iter + 1;
@@ -25,34 +25,50 @@ for i = 1:776
 end
 
 %imshow(impulseSampled);
+%title("Impulse Sampling at 1/5 of the Original Rate");
 
 %downsample by 5
 downsampledX = downsample(Xdouble,5); %Xdouble(1:5:1082520);
 downsampledX = downsample(downsampledX',5)';
 
 %imshow(downsampledX);
+%title("Downsampling by a factor of 5");
+
+% downsampledX(1:5, 1:5) = [1 1 1 1 1;1 1 1 1 1;1 1 1 1 1;1 1 1 1 1;1 1 1 1 1;];
 
 % Zero-order hold reconstruction 
 sz = size(Xdouble);
 ZOHR = zeros(sz);
-iter = 1;
-iter2 = 1;
-iterI = 1;
-iterJ = 1;
-for i = 1:776
-    for j=1:1395
-        ZOHR(i,j) = downsampledX(iterI,iterJ);
-        disp(iterI)
-        if (mod(iter,25) == 0)
-            iterI = mod(iterI + 1, 156);
-            iter2 = iter2 + 1;
-        end
-        if (mod(iter2, 25) == 0)
-            iterJ = iterJ + 1;
-        end
-        iter = iter + 1;
+for i = 1:156
+    for j=1:279
+        ZOHR((i-1)*5 + 1:((i-1)*5)+5,(j-1)*5 + 1:((j-1)*5)+5) = downsampledX(i,j)*ones(5);
     end
 end
-imshow(ZOHR);
+%imshow(ZOHR);
+%title("Zero-order hold reconstruction");
 
+% First-order hold reconstruction 
+sz = size(downsampledX);
+xVals = (1:1/5:sz(1));
+yVals = (1:1/5:sz(2));
 
+F = griddedInterpolant(downsampledX);
+OOHR = F({xVals, yVals});
+
+% for i = 1:size(downsampledX,1) - 2
+%     for j=1:size(downsampledX,2) - 2
+%         slope1 = (downsampleX(i+1,j) - downsampleX(i,j))/5;
+%         for k  = 1:5
+%             OOHR(i+k,j) = slope1*k;
+%         end
+%         slope2 = (downsampleX(i+1,j+1) - downsampleX(i,j+1))/5;
+%         for k  = 1:5
+%             OOHR(i+k,j) = slope1*k;
+%         end
+% 
+% 
+%         ZOHR((i-1)*5 + 1:((i-1)*5)+5,(j-1)*5 + 1:((j-1)*5)+5) = %submatrix;
+%     end
+% end
+imshow(OOHR);
+title("First-order hold reconstruction");
